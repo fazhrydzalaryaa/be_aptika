@@ -61,23 +61,40 @@ class SpdPesertaController extends Controller
                 $staffNomorSpd = $existingStaffNomor ?: $this->buildNomorSpd('ST', $year, $this->getNextNomorSpdSequence('ST', $year));
                 $kabidSequence = $this->getNextNomorSpdSequence('KB', $year);
 
-                $created = [];
+                // Hapus peserta lama yang tidak ada dalam daftar pegawai baru untuk perjalanan ini
+                SpdPeserta::where('detail_perjalanan_id', $detail->id)
+                    ->whereNotIn('pegawai_id', $pegawaiIds)
+                    ->delete();
+
+                $results = [];
 
                 foreach ($participants as $participant) {
-                    $nomorSpd = $participant->role === 'staff'
-                        ? $staffNomorSpd
-                        : $this->buildNomorSpd('KB', $year, $kabidSequence++);
+                    $existing = SpdPeserta::where('detail_perjalanan_id', $detail->id)
+                        ->where('pegawai_id', $participant->id)
+                        ->first();
 
-                    $created[] = SpdPeserta::create([
-                        'detail_perjalanan_id' => $detail->id,
-                        'pegawai_id' => $participant->id,
-                        'nomor_spd' => $nomorSpd,
-                        'lama_hari' => $lamaHari,
-                        'total_uang' => $lamaHari * $detail->uang_harian,
-                    ]);
+                    if ($existing) {
+                        $existing->update([
+                            'lama_hari' => $lamaHari,
+                            'total_uang' => $lamaHari * $detail->uang_harian,
+                        ]);
+                        $results[] = $existing->fresh();
+                    } else {
+                        $nomorSpd = $participant->role === 'staff'
+                            ? $staffNomorSpd
+                            : $this->buildNomorSpd('KB', $year, $kabidSequence++);
+
+                        $results[] = SpdPeserta::create([
+                            'detail_perjalanan_id' => $detail->id,
+                            'pegawai_id' => $participant->id,
+                            'nomor_spd' => $nomorSpd,
+                            'lama_hari' => $lamaHari,
+                            'total_uang' => $lamaHari * $detail->uang_harian,
+                        ]);
+                    }
                 }
 
-                return $created;
+                return $results;
             });
 
             return response()->json([
