@@ -12,6 +12,7 @@ use App\Http\Controllers\SPD\DetailPerjalananController;
 use App\Http\Controllers\SPD\PegawaiController;
 use App\Http\Controllers\SPD\RekeningController;
 use App\Http\Controllers\SPD\SpdPesertaController;
+use App\Http\Controllers\SPD\AlatAngkutanController;
 
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\SpdProposalController;
@@ -387,6 +388,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                 Route::apiResource(
                     'spd-peserta',
                     SpdPesertaController::class
+                );
+
+                Route::apiResource(
+                    'alat-angkutan',
+                    AlatAngkutanController::class
                 );
             });
 
