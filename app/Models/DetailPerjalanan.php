@@ -42,6 +42,6 @@ class DetailPerjalanan extends Model
 
     public function peserta(): HasMany
     {
-        return $this->hasMany(SpdPeserta::class, 'detail_perjalanan_id');
+        return $this->hasMany(SpdPeserta::class, 'detail_perjalanan_id')->orderBy('id');
     }
 }

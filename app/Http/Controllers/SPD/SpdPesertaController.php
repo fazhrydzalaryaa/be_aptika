@@ -46,12 +46,28 @@ class SpdPesertaController extends Controller
         try {
             $items = DB::transaction(function () use ($validated) {
                 $detail = DetailPerjalanan::findOrFail($validated['detail_perjalanan_id']);
-                $pegawaiIds = array_unique($validated['pegawai_id']);
-                $participants = Pegawai::whereIn('id', $pegawaiIds)->get();
+                $pegawaiIds = array_values(array_unique($validated['pegawai_id']));
+                $participantsRaw = Pegawai::whereIn('id', $pegawaiIds)->get()->keyBy('id');
+
+                // Preserve exact sequence sent from frontend
+                $participants = collect();
+                foreach ($pegawaiIds as $pid) {
+                    if ($participantsRaw->has($pid)) {
+                        $participants->push($participantsRaw->get($pid));
+                    }
+                }
 
                 $lamaHari = Carbon::parse($detail->tanggal_berangkat)
                     ->diffInDays(Carbon::parse($detail->tanggal_kembali)) + 1;
                 $year = date('Y');
+
+                // Simpan nomor_spd lama per pegawai sebelum dihapus agar tetap konsisten
+                $existingNomorSpd = SpdPeserta::where('detail_perjalanan_id', $detail->id)
+                    ->get()
+                    ->keyBy('pegawai_id')
+                    ->map(fn($p) => $p->nomor_spd);
+
+                // Ambil nomor_spd staff yang sudah ada (semua staff pakai 1 nomor bersama)
                 $existingStaffNomor = SpdPeserta::where('detail_perjalanan_id', $detail->id)
                     ->whereHas('pegawai', function ($query) {
                         $query->where('role', 'staff');
@@ -61,37 +77,32 @@ class SpdPesertaController extends Controller
                 $staffNomorSpd = $existingStaffNomor ?: $this->buildNomorSpd('ST', $year, $this->getNextNomorSpdSequence('ST', $year));
                 $kabidSequence = $this->getNextNomorSpdSequence('KB', $year);
 
-                // Hapus peserta lama yang tidak ada dalam daftar pegawai baru untuk perjalanan ini
-                SpdPeserta::where('detail_perjalanan_id', $detail->id)
-                    ->whereNotIn('pegawai_id', $pegawaiIds)
-                    ->delete();
+                // Hapus SEMUA peserta lama untuk detail perjalanan ini agar id auto-increment
+                // mengikuti urutan input (Kabid=id terkecil, Staff 1, Staff 2, dst).
+                // Dengan orderBy('id') di relasi peserta(), urutan 01,02,03,04 terjamin.
+                SpdPeserta::where('detail_perjalanan_id', $detail->id)->delete();
 
                 $results = [];
 
                 foreach ($participants as $participant) {
-                    $existing = SpdPeserta::where('detail_perjalanan_id', $detail->id)
-                        ->where('pegawai_id', $participant->id)
-                        ->first();
+                    // Gunakan nomor_spd lama jika peserta ini sudah pernah terdaftar
+                    $savedNomor = $existingNomorSpd->get($participant->id);
 
-                    if ($existing) {
-                        $existing->update([
-                            'lama_hari' => $lamaHari,
-                            'total_uang' => $lamaHari * $detail->uang_harian,
-                        ]);
-                        $results[] = $existing->fresh();
+                    if ($savedNomor) {
+                        $nomorSpd = $savedNomor;
                     } else {
                         $nomorSpd = $participant->role === 'staff'
                             ? $staffNomorSpd
                             : $this->buildNomorSpd('KB', $year, $kabidSequence++);
-
-                        $results[] = SpdPeserta::create([
-                            'detail_perjalanan_id' => $detail->id,
-                            'pegawai_id' => $participant->id,
-                            'nomor_spd' => $nomorSpd,
-                            'lama_hari' => $lamaHari,
-                            'total_uang' => $lamaHari * $detail->uang_harian,
-                        ]);
                     }
+
+                    $results[] = SpdPeserta::create([
+                        'detail_perjalanan_id' => $detail->id,
+                        'pegawai_id' => $participant->id,
+                        'nomor_spd' => $nomorSpd,
+                        'lama_hari' => $lamaHari,
+                        'total_uang' => $lamaHari * $detail->uang_harian,
+                    ]);
                 }
 
                 return $results;
