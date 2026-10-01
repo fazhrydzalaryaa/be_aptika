@@ -282,6 +282,15 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::put('/password', [PasswordController::class, 'update']);
     Route::put('/profile/password', [PasswordController::class, 'update']);
 
+    // ========================================================
+    // MASTER DATA (REFERENSI TABEL SISTEM)
+    // ========================================================
+    Route::prefix('master')->group(function () {
+        Route::apiResource('rekening', RekeningController::class);
+        Route::apiResource('alat-angkutan', AlatAngkutanController::class);
+        Route::apiResource('pegawai', PegawaiController::class);
+        Route::apiResource('nda', \App\Http\Controllers\MasterNdaController::class);
+    });
 
     // ========================================================
     // ADMIN PANEL
