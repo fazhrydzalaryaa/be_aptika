@@ -147,12 +147,14 @@ Route::get('/system/db-status', function () {
 Route::get('/bidangs', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\Bidang::select(
-            'id',
-            'code',
-            'name',
-            'description'
-        )->get(),
+        // Tambahkan whereNotIn untuk memfilter 5 bidang saja
+        'data' => \App\Models\Bidang::whereNotIn('code', ['SEKRETARIAT', 'PLDDIG'])
+            ->select(
+                'id',
+                'code',
+                'name',
+                'description'
+            )->get(),
     ]);
 });
 
