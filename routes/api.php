@@ -1439,6 +1439,20 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'update'  => 'smki.formulir-hardening.update',
                     'destroy' => 'smki.formulir-hardening.destroy',
                 ]);
+
+            // Laporan Audit Internal SMKI (FR-006)
+            Route::get('laporan-audit/lookup', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'lookup'])
+                ->name('smki.laporan-audit.lookup');
+            Route::get('laporan-audit/{id}/export-docx', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'exportDocx'])
+                ->name('smki.laporan-audit.export-docx');
+            Route::apiResource('laporan-audit', \App\Http\Controllers\Smki\SmkiLaporanAuditController::class)
+                ->names([
+                    'index'   => 'smki.laporan-audit.index',
+                    'store'   => 'smki.laporan-audit.store',
+                    'show'    => 'smki.laporan-audit.show',
+                    'update'  => 'smki.laporan-audit.update',
+                    'destroy' => 'smki.laporan-audit.destroy',
+                ]);
         });
 
     // ========================================================
