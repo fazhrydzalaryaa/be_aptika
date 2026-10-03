@@ -1496,6 +1496,20 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'destroy' => 'smki.rencana-audit.destroy',
                 ]);
 
+            // Laporan Audit Internal SMKI (FR-006)
+            Route::get('laporan-audit/lookup', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'lookup'])
+                ->name('smki.laporan-audit.lookup');
+            Route::get('laporan-audit/{id}/export-docx', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'exportDocx'])
+                ->name('smki.laporan-audit.export-docx');
+            Route::apiResource('laporan-audit', \App\Http\Controllers\Smki\SmkiLaporanAuditController::class)
+                ->names([
+                    'index'   => 'smki.laporan-audit.index',
+                    'store'   => 'smki.laporan-audit.store',
+                    'show'    => 'smki.laporan-audit.show',
+                    'update'  => 'smki.laporan-audit.update',
+                    'destroy' => 'smki.laporan-audit.destroy',
+                ]);
+
             // Formulir Hak Akses TI (FR-018)
             Route::get('hak-akses-ti/lookup', [\App\Http\Controllers\Smki\HakAksesTiController::class, 'lookup'])
                 ->name('smki.hak-akses-ti.lookup');
