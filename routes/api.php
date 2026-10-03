@@ -1474,6 +1474,20 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'update'  => 'smki.formulir-hardening.update',
                     'destroy' => 'smki.formulir-hardening.destroy',
                 ]);
+
+            // Formulir Hak Akses TI (FR-018)
+            Route::get('hak-akses-ti/lookup', [\App\Http\Controllers\Smki\HakAksesTiController::class, 'lookup'])
+                ->name('smki.hak-akses-ti.lookup');
+            Route::get('hak-akses-ti/export-docx', [\App\Http\Controllers\Smki\HakAksesTiController::class, 'exportDocx'])
+                ->name('smki.hak-akses-ti.export-docx');
+            Route::apiResource('hak-akses-ti', \App\Http\Controllers\Smki\HakAksesTiController::class)
+                ->names([
+                    'index'   => 'smki.hak-akses-ti.index',
+                    'store'   => 'smki.hak-akses-ti.store',
+                    'show'    => 'smki.hak-akses-ti.show',
+                    'update'  => 'smki.hak-akses-ti.update',
+                    'destroy' => 'smki.hak-akses-ti.destroy',
+                ]);
         });
 
     // ========================================================
