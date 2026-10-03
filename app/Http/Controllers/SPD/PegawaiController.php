@@ -34,12 +34,23 @@ class PegawaiController extends Controller
     {
         $validated = $request->validate([
             'nama'          => 'required|string|max:255',
-            'nip'           => 'required|string|max:18|unique:pegawai,nip',
+            'nip'           => 'required|string|max:30',
             'pangkat'       => 'required|string|max:255',
             'jabatan'       => 'required|string|max:255',
             'role'          => 'required|in:kabid,staff',
             'tanggal_lahir' => 'nullable|date',
         ]);
+
+        $validated['nip'] = preg_replace('/\s+/', '', $validated['nip']);
+
+        // Check unique nip after stripping whitespace
+        if (Pegawai::where('nip', $validated['nip'])->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIP sudah terdaftar dalam sistem.',
+                'errors'  => ['nip' => ['NIP sudah terdaftar.']],
+            ], 422);
+        }
 
         try {
             $item = DB::transaction(function () use ($validated) {
@@ -91,12 +102,24 @@ class PegawaiController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nip' => 'required|string|max:18|unique:pegawai,nip,' . $id,
-            'pangkat' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'role' => 'required|in:kabid,staff',
+            'nama'          => 'required|string|max:255',
+            'nip'           => 'required|string|max:30',
+            'pangkat'       => 'required|string|max:255',
+            'jabatan'       => 'required|string|max:255',
+            'role'          => 'required|in:kabid,staff',
+            'tanggal_lahir' => 'nullable|date',
         ]);
+
+        $validated['nip'] = preg_replace('/\s+/', '', $validated['nip']);
+
+        // Check unique nip after stripping whitespace
+        if (Pegawai::where('nip', $validated['nip'])->where('id', '!=', $id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIP sudah digunakan oleh pegawai lain.',
+                'errors'  => ['nip' => ['NIP sudah digunakan.']],
+            ], 422);
+        }
 
         try {
             $item = Pegawai::findOrFail($id);
