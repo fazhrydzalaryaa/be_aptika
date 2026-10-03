@@ -285,7 +285,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     // ========================================================
     // MASTER DATA (REFERENSI TABEL SISTEM)
     // ========================================================
-    Route::prefix('master')->group(function () {
+    Route::prefix('master')->name('master.')->group(function () {
         Route::apiResource('rekening', RekeningController::class);
         Route::apiResource('alat-angkutan', AlatAngkutanController::class);
         Route::apiResource('pegawai', PegawaiController::class);
@@ -369,7 +369,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::middleware(['service.enabled:ADMINISTRASI_SURAT'])
         ->group(function () {
 
-            Route::prefix('spd')->group(function () {
+            Route::prefix('spd')->name('spd.')->group(function () {
 
                 Route::apiResource(
                     'detail-perjalanan',
