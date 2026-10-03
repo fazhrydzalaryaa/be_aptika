@@ -1459,8 +1459,6 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
             // Daftar Aset TI (dalam prefix smki)
             Route::get('daftar-aset-ti/lookup', [\App\Http\Controllers\DaftarAsetTiController::class, 'lookup'])
                 ->name('smki.daftar-aset-ti.lookup');
-            Route::get('daftar-aset-ti/export-excel', [\App\Http\Controllers\DaftarAsetTiController::class, 'exportExcel'])
-                ->name('smki.daftar-aset-ti.export-excel');
             Route::apiResource('daftar-aset-ti', \App\Http\Controllers\DaftarAsetTiController::class)
                 ->names([
                     'index'   => 'smki.daftar-aset-ti.index',
@@ -1482,6 +1480,18 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'show'    => 'smki.formulir-hardening.show',
                     'update'  => 'smki.formulir-hardening.update',
                     'destroy' => 'smki.formulir-hardening.destroy',
+                ]);
+
+            // Formulir Rencana Audit (F05-SMKI)
+            Route::get('rencana-audit/lookup', [\App\Http\Controllers\Smki\SmkiRencanaAuditController::class, 'lookup'])
+                ->name('smki.rencana-audit.lookup');
+            Route::apiResource('rencana-audit', \App\Http\Controllers\Smki\SmkiRencanaAuditController::class)
+                ->names([
+                    'index'   => 'smki.rencana-audit.index',
+                    'store'   => 'smki.rencana-audit.store',
+                    'show'    => 'smki.rencana-audit.show',
+                    'update'  => 'smki.rencana-audit.update',
+                    'destroy' => 'smki.rencana-audit.destroy',
                 ]);
         });
 
