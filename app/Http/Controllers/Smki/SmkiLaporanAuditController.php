@@ -115,6 +115,9 @@ class SmkiLaporanAuditController extends Controller
     public function lookup(Request $request)
     {
         $unitKerjas = SmkiUnitKerja::orderBy('nama_unit_kerja', 'asc')->get();
+        if ($unitKerjas->isEmpty()) {
+            $unitKerjas = \App\Models\Bidang::select('id as id_unit_kerja', 'name as nama_unit_kerja')->get();
+        }
         $kategoriTemuans = SmkiKategoriTemuan::orderBy('nama_kategori', 'asc')->get();
 
         // Nomor Laporan Rekomendasi Selanjutnya
