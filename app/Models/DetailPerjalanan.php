@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Rekening;
 use App\Models\SpdPeserta;
+use App\Models\Pegawai; // <-- Tambahan untuk memanggil model Pegawai
 
 class DetailPerjalanan extends Model
 {
@@ -27,6 +28,9 @@ class DetailPerjalanan extends Model
         'deskripsi',
         'status',
         'bidang_id',
+        'nomor_sp',    // <-- Tambahan baru
+        'nomor_visum', // <-- Tambahan baru
+        'ppk_id',      // <-- Tambahan baru
     ];
 
     protected $casts = [
@@ -43,5 +47,11 @@ class DetailPerjalanan extends Model
     public function peserta(): HasMany
     {
         return $this->hasMany(SpdPeserta::class, 'detail_perjalanan_id')->orderBy('id');
+    }
+
+    // <-- Tambahan relasi untuk PPK
+    public function ppk(): BelongsTo
+    {
+        return $this->belongsTo(Pegawai::class, 'ppk_id');
     }
 }

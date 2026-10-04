@@ -147,12 +147,14 @@ Route::get('/system/db-status', function () {
 Route::get('/bidangs', function () {
     return response()->json([
         'success' => true,
-        'data' => \App\Models\Bidang::select(
-            'id',
-            'code',
-            'name',
-            'description'
-        )->get(),
+        // Tambahkan whereNotIn untuk memfilter 5 bidang saja
+        'data' => \App\Models\Bidang::whereNotIn('code', ['SEKRETARIAT', 'PLDDIG'])
+            ->select(
+                'id',
+                'code',
+                'name',
+                'description'
+            )->get(),
     ]);
 });
 
@@ -282,6 +284,15 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::put('/password', [PasswordController::class, 'update']);
     Route::put('/profile/password', [PasswordController::class, 'update']);
 
+    // ========================================================
+    // MASTER DATA (REFERENSI TABEL SISTEM)
+    // ========================================================
+    Route::prefix('master')->name('master.')->group(function () {
+        Route::apiResource('rekening', RekeningController::class);
+        Route::apiResource('alat-angkutan', AlatAngkutanController::class);
+        Route::apiResource('pegawai', PegawaiController::class);
+        Route::apiResource('nda', \App\Http\Controllers\MasterNdaController::class);
+    });
 
     // ========================================================
     // ADMIN PANEL
@@ -360,7 +371,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::middleware(['service.enabled:ADMINISTRASI_SURAT'])
         ->group(function () {
 
-            Route::prefix('spd')->group(function () {
+            Route::prefix('spd')->name('spd.')->group(function () {
 
                 Route::apiResource(
                     'detail-perjalanan',
@@ -1464,8 +1475,6 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
             // Daftar Aset TI (dalam prefix smki)
             Route::get('daftar-aset-ti/lookup', [\App\Http\Controllers\DaftarAsetTiController::class, 'lookup'])
                 ->name('smki.daftar-aset-ti.lookup');
-            Route::get('daftar-aset-ti/export-excel', [\App\Http\Controllers\DaftarAsetTiController::class, 'exportExcel'])
-                ->name('smki.daftar-aset-ti.export-excel');
             Route::apiResource('daftar-aset-ti', \App\Http\Controllers\DaftarAsetTiController::class)
                 ->names([
                     'index'   => 'smki.daftar-aset-ti.index',
@@ -1487,6 +1496,46 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'show'    => 'smki.formulir-hardening.show',
                     'update'  => 'smki.formulir-hardening.update',
                     'destroy' => 'smki.formulir-hardening.destroy',
+                ]);
+
+            // Formulir Rencana Audit (F05-SMKI)
+            Route::get('rencana-audit/lookup', [\App\Http\Controllers\Smki\SmkiRencanaAuditController::class, 'lookup'])
+                ->name('smki.rencana-audit.lookup');
+            Route::apiResource('rencana-audit', \App\Http\Controllers\Smki\SmkiRencanaAuditController::class)
+                ->names([
+                    'index'   => 'smki.rencana-audit.index',
+                    'store'   => 'smki.rencana-audit.store',
+                    'show'    => 'smki.rencana-audit.show',
+                    'update'  => 'smki.rencana-audit.update',
+                    'destroy' => 'smki.rencana-audit.destroy',
+                ]);
+
+            // Laporan Audit Internal SMKI (FR-006)
+            Route::get('laporan-audit/lookup', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'lookup'])
+                ->name('smki.laporan-audit.lookup');
+            Route::get('laporan-audit/{id}/export-docx', [\App\Http\Controllers\Smki\SmkiLaporanAuditController::class, 'exportDocx'])
+                ->name('smki.laporan-audit.export-docx');
+            Route::apiResource('laporan-audit', \App\Http\Controllers\Smki\SmkiLaporanAuditController::class)
+                ->names([
+                    'index'   => 'smki.laporan-audit.index',
+                    'store'   => 'smki.laporan-audit.store',
+                    'show'    => 'smki.laporan-audit.show',
+                    'update'  => 'smki.laporan-audit.update',
+                    'destroy' => 'smki.laporan-audit.destroy',
+                ]);
+
+            // Formulir Hak Akses TI (FR-018)
+            Route::get('hak-akses-ti/lookup', [\App\Http\Controllers\Smki\HakAksesTiController::class, 'lookup'])
+                ->name('smki.hak-akses-ti.lookup');
+            Route::get('hak-akses-ti/export-docx', [\App\Http\Controllers\Smki\HakAksesTiController::class, 'exportDocx'])
+                ->name('smki.hak-akses-ti.export-docx');
+            Route::apiResource('hak-akses-ti', \App\Http\Controllers\Smki\HakAksesTiController::class)
+                ->names([
+                    'index'   => 'smki.hak-akses-ti.index',
+                    'store'   => 'smki.hak-akses-ti.store',
+                    'show'    => 'smki.hak-akses-ti.show',
+                    'update'  => 'smki.hak-akses-ti.update',
+                    'destroy' => 'smki.hak-akses-ti.destroy',
                 ]);
         });
 
