@@ -51,5 +51,15 @@ class DatabaseSeeder extends Seeder
             SmkiSoftwareStandarSeeder::class,
             SmkiFormulirHardeningSeeder::class,
         ]);
+
+        // Seed SMKI Rencana Audit (master: bidang_auditee, lokasi_auditee, auditee, auditor)
+        $this->call([
+            RencanaAuditMasterSeeder::class,
+        ]);
+
+        // Seed SMKI Laporan Audit Internal (FR-006) - data dummy contoh
+        $this->call([
+            SmkiLaporanAuditSeeder::class,
+        ]);
     }
 }
