@@ -1432,6 +1432,20 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
                     'destroy' => 'smki.daftar-rekaman.destroy',
                 ]);
 
+            // Daftar Penyedia Barang/Jasa (Formulir FR-020)
+            Route::get('daftar-penyedia/lookup', [\App\Http\Controllers\Smki\SmkiPenyediaBarangJasaController::class, 'lookup'])
+                ->name('smki.daftar-penyedia.lookup');
+            Route::get('daftar-penyedia/export-docx', [\App\Http\Controllers\Smki\SmkiPenyediaBarangJasaController::class, 'exportDocx'])
+                ->name('smki.daftar-penyedia.export-docx');
+            Route::apiResource('daftar-penyedia', \App\Http\Controllers\Smki\SmkiPenyediaBarangJasaController::class)
+                ->names([
+                    'index'   => 'smki.daftar-penyedia.index',
+                    'store'   => 'smki.daftar-penyedia.store',
+                    'show'    => 'smki.daftar-penyedia.show',
+                    'update'  => 'smki.daftar-penyedia.update',
+                    'destroy' => 'smki.daftar-penyedia.destroy',
+                ]);
+
             // Berita Acara Penghancuran Media (FR014-SMKI)
             Route::get('berita-acara/lookup', [\App\Http\Controllers\Smki\SmkiBeritaAcaraController::class, 'lookup'])
                 ->name('smki.berita-acara.lookup');
