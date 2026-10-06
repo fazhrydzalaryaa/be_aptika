@@ -36,7 +36,7 @@ Pastikan Docker Desktop dalam kondisi **Running**.
 Clone repository terlebih dahulu:
 
 ```bash
-git clone <URL_REPOSITORY>
+git clone https://github.com/fazhrydzalaryaa/be_aptika.git
 cd be_aptika
 ```
 
